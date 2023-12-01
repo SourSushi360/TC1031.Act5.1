@@ -22,8 +22,8 @@
   int Entry::getKey() {
     return this->key;
   }
-  std::string Entry::getRegistro(int indice) {
-    return this->registro[indice];
+  std::vector<std::string> Entry::getRegistro() {
+    return *this->registro;
   }
   // setters
   void Entry::setKey(int key) {
@@ -77,6 +77,13 @@
     std::istringstream stream(entrada);
     std::string mes,dia,hora,ip,mensaje;
     stream >> mes >> dia >> hora >> ip >> mensaje;
+    int key = 0;
+    int define_ip;
+    std::getline(ip,define_ip,':');
+    while (std::getline(define_ip,ip,'.')) {
+      key += std::stoi(ip);
+    }
+    size_t index = hashFunction(key);
   }
   // formato
   void HashTable::print() {
