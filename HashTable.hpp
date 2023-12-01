@@ -1,74 +1,63 @@
-/**************************************************************************
- * Encabezado de HashTable
- * Autor: Gerardo Rodríguez Hernández
- * Fecha: 24/11/2023
- * Descripcion:
- * El objetivo de esta actividad es crear una Tabla Hash
- **************************************************************************/
-
-#ifndef HASHTABLE_h
-#define HASHTABLE_h
+/*  HashTable.hpp
+    Jean Paul López Pándura
+    
+    última actualización: 01/12/2023
+    Archivo que define las funciones para hashtable */
+#ifndef HASHTABLE_HPP
+#define HASHTABLE_HPP
 
 #include <iostream>
 #include <vector>
 #include <list>
-#include <iterator>
-
-// Clase HashEntry para almacenar una entrada en la tabla hash
-class HashEntry {
-private:
-    int key;
-    int value;
-
-public:
-    // Constructor
-    HashEntry(int k, int v) : key(k), value(v) {}
-    ~HashEntry();
-
-    // Métodos Accessors
-    void setKey(int k);
-    int getKey() const { return key; }
-    int getValue() const { return value; }
-    void setValue(int v) { value = v; }
+#include <sstream>
+class Entry {
+    private:
+        /* la dirección IP pasada a int */
+        int *key;
+        /* un vector de strings con el registro de las veces que
+        aparece en la bitácora */
+        std::vector<std::string> registro;
+    public:
+        /* constructor */
+        Entry(int key,std::string registro);
+        /* constructor default */
+        ~Entry();
+        /* destructor */
+        ~Entry();
+        /* regresa el valor de key */
+        int getKey();
+        /* recibe un int que es usado como índice
+        regresa el valor en la posición dada dentro del vector registro */
+        std::string getRegistro(int indice);
+        /* cambia el valor de key con el valor dado */
+        void setKey(int key);
+        /* agrega una entrada a registro */
+        void addRegistro(std::string registro);
+        /* imprime el registro */
+        void print();
 };
-
 class HashTable {
-private:
-    std::vector<std::list<HashEntry>> table;
-    size_t size;
-
-public:
-    // Constructor
-    HashTable(size_t initialSize = 10);
-    ~HashTable();
-
-    // Función de dispersión
-    size_t hashFunction(int key) const;
-
-    // Insertar un par clave-valor en la tabla hash
-    void insert(int key, int value);
-
-    // Obtener el valor asociado con una clave
-    int get(int key) const;
-
-    // Eliminar una entrada en la tabla hash
-    void remove(int key);
-
-    // Obtener el tamaño de la tabla hash
-    size_t getSize() const;
-
-    // Verificar si la tabla hash está vacía
-    bool isEmpty() const;
-
-    // Imprimir la tabla hash
-    void printTable() const;
-
-private:
-    // Calcular el factor de carga de la tabla hash
-    double loadFactor() const;
-
-    // Función para volver a dispersar la tabla hash cuando la carga es demasiado alta
-    void rehash();
+    private:
+        size_t *size;
+        std::vector<std::list<Entry>*> table;
+    public:
+        /* constructor */
+        HashTable(size_t size = 100);
+        /* destructor */
+        ~HashTable();
+        /* regresa el tamaño de la tabla */
+        size_t getSize();
+        /* verifica si la tabla está vacía */
+        bool isEmpty();
+        /* imprime la tabla hash */
+        void print();
+        /* inserta una nueva entrada a la tabla */
+        void insert(std::string entrada);
+        /* elimina una entrada en la tabla usando su key */
+        void remove(int key);
+        /* función de dispersión */
+        size_t hashFunction(int key) const;
+        /* regresa la entrada asociada con una llave */
+        std::vector<std::string> get(int key) const;
 };
-
 #endif
