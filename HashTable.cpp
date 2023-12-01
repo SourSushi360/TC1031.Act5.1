@@ -1,29 +1,23 @@
-
-
-/**************************************************************************
- * Implementación de HashTable
- * Autor: Gerardo Rodríguez Hernández
- * Fecha: 24/11/2023
- * Descripcion:
- * El objetivo de esta actividad es implementar una Tabla Hash
- **************************************************************************/
+/*  HashTable.cpp
+    Jean Paul López Pándura
+    
+    última modificación: 29/11/2023
+    Este código es la implementación y definición de las funciones declaradas en
+    el header de HastTable */
 #include "HashTable.hpp"
 
 // Constructor de HashEntry
 HashEntry::HashEntry(int k, int v) {
-    // Asigna k a key y v a value
-  this->key = 0;
-  this->value = 0;
 }
-  HashEntry::~HashEntry(){
-    delete this->key;
-    delete this->value;
+HashEntry::~HashEntry(){
+  delete this->key;
+  delete this->value;
     
-  }
+}
 
 int HashEntry::getKey() const {
     // Retorna key
-    return this->key;
+  return this->key;
 }
 
 int HashEntry::getValue() const {
@@ -33,7 +27,7 @@ int HashEntry::getValue() const {
 
 int HashEntry::setKey(int k){
     // Retorna key
-    this->key = k;
+  this->key = k;
 }
 
 
