@@ -5,94 +5,87 @@
     Este código es la implementación y definición de las funciones declaradas en
     el header de HastTable */
 #include "HashTable.hpp"
+// Construye una tabla de dispersión (HashTable) con un tamaño inicial.
+HashTable::HashTable(size_t initialSize) : size(0) {
+  table.resize(initialSize);
+}
+// Función de dispersión que calcula el índice en la tabla para una clave dada.
+size_t HashTable::hashFunction(int ip) const {
+  return ip % table.size();
+}
+// Inserta un par clave-valor en la tabla de dispersión y realiza rehash si es necesario.
+void HashTable::insert(int ip, int repeticiones) {
+  size_t index = hashFunction(ip);
+  auto& bucket = table[index];
 
-// Entry
-  // constructor
-  Entry::Entry(int key,std::string registro) {
-    this->key = new int(key);
-    this->registro[0] = registro;
+  for (auto& hashEntry : bucket) {
+    if (hashEntry.getKey() == ip) {
+      hashEntry.setValue(repeticiones);
+      return;
+    }
   }
-  Entry::Entry() {
-    this->key = new int(0);
+  bucket.push_back(HashEntry(ip, repeticiones));
+  size = size+1;
+  if (loadFactor() > 0.75) {
+    rehash();
   }
-  Entry::~Entry() {
-    delete key;
-  }
-  // getters
-  int Entry::getKey() {
-    return this->key;
-  }
-  std::vector<std::string> Entry::getRegistro() {
-    return *this->registro;
-  }
-  // setters
-  void Entry::setKey(int key) {
-    *this->key = key;
-  }
-  void Entry::addRegistro(std::string entry) {
-    this->registro.push_back(entry);
-  }
-  // formato
-  void Entry::print() {
-    for (int i = 0;i < registro.size();i++) {
-      std::cout << registro[i] << '\n';
+}
+// Obtiene el valor asociado a una clave en la tabla de dispersión.
+int HashTable::get(int ip) const {
+  size_t index = hashFunction(ip);
+  const auto& bucket = table[index];
+  for (const auto& hashEntry : bucket) {
+    if (hashEntry.getKey() == ip) {
+      return hashEntry.getValue();
     }
   }
 
-// HashTable
-  // constructor
-  HashTable::HashTable(size_t size = 100) {
-    *this->size = size;
-    this->table[0] = new std::list<Entry>;
+  return -1;
+}
+// Elimina una entrada asociada a una clave en la tabla de dispersión y realiza rehash si es necesario.
+void HashTable::remove(int ip) {
+  size_t index = hashFunction(ip);
+  auto& bucket = table[index];
+  bucket.remove_if([ip](const HashEntry& hashEntry) {
+    return hashEntry.getKey() == ip;
+  }); size = size - 1;
+  if (loadFactor() < 0.25 && table.size() > 10) {
+    rehash();
   }
-  HashTable::~HashTable() {
-    delete this->size;
-    while (!this->table.empty()) {
-      this->table.pop_back();
+}
+// Obtiene el tamaño actual de la tabla de dispersión.
+size_t HashTable::getSize() const {
+  return size;
+}
+// Verifica si la tabla de dispersión está vacía.
+bool HashTable::isEmpty() const {
+  return size == 0;
+}
+// Imprime la tabla de dispersión y sus elementos.
+void HashTable::printTable() const {
+  for (int i = 0; i < table.size(); ++i) {
+    cout << "Bucket " << i << ": ";
+    for (const auto& hashEntry : table[i]) {
+      cout << "[" << hashEntry.getKey() << ":" << hashEntry.getValue() << "] ";
+    }
+    cout << endl;
+  }
+}
+// Calcula el factor de carga de la tabla de dispersión.
+double HashTable::loadFactor() const {
+  double result = static_cast<double>(size) / table.size();
+
+  return result;
+}
+// Realiza la rehashing de la tabla de dispersión, duplicando su tamaño y redistribuyendo las entradas.
+void HashTable::rehash() {
+  size_t size = table.size() * 2;
+  vector<list<HashEntry>> newTable(size);
+  for (const auto& bucket : table) {
+    for (const auto& hashEntry : bucket) {
+      size_t index = hashEntry.getKey() % size;
+      newTable[index].push_back(hashEntry);
     }
   }
-  // getters
-  size_t HashTable::getSize() {
-    return *this->size;
-  }
-  std::vector<std::string> get(int key) const {
-    int index = hashFunction(key);
-    for (Entry *u : table[index]) {
-      if (u.getKey() == key) {
-        return u.getRegistro();
-      }
-    }
-    Entry *entrada;
-    return entrada.getRegistro();
-    delete entrada;
-  }
-  bool HashTable::isEmpty() {
-    return !this->table.empty();
-  }
-  // hash
-  size_t HashTable::hashFunction(int key) const {
-    return key % table.size;
-  }
-  void HashTable::insert(std::string entrada) {
-    std::istringstream stream(entrada);
-    std::string mes,dia,hora,ip,mensaje;
-    stream >> mes >> dia >> hora >> ip >> mensaje;
-    int key = 0;
-    int define_ip;
-    std::getline(ip,define_ip,':');
-    while (std::getline(define_ip,ip,'.')) {
-      key += std::stoi(ip);
-    }
-    size_t index = hashFunction(key);
-  }
-  // formato
-  void HashTable::print() {
-    for (int i = 0;i < this->size;i++) {
-      if (this->table[i] != nullptr) {
-        std::cout << "Bucket " << i << ":\n";
-        for (Entry *entrada : table[i]) {
-          entrada->print();
-        }
-      }
-    }
-  }
+  table = move(newTable);
+}
